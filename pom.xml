@@ -26,6 +26,11 @@
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots</artifactId>
+            <version>4.1</version>
+        </dependency>
     </dependencies>
 
 
