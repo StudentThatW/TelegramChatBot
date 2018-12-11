@@ -26,18 +26,18 @@ class BullsAndCowsGameTest {
         repeatedDigitsInputs.add("4545");
         for (int length = 2; length <= 4; length++) {
             BullsAndCowsGame game = new BullsAndCowsGame();
-            String answer = game.getAnswer("/game");
+            String answer = game.getAnswer("/newgame").getText();
             assertEquals(BullsAndCowsAnswers.numberLengthRequestLine, answer);
             for (String incorrectLength : incorrectLengths) {
-                answer = game.getAnswer(incorrectLength);
-                assertEquals(BullsAndCowsAnswers.inncorrectLengthLine, answer);
+                answer = game.getAnswer(incorrectLength).getText();
+                assertEquals(BullsAndCowsAnswers.incorrectLengthLine, answer);
             }
-            answer = game.getAnswer(Integer.toString(length));
+            answer = game.getAnswer(Integer.toString(length)).getText();
             assertEquals(BullsAndCowsAnswers.NumberGenerationLine, answer);
-            answer = game.getAnswer(notDigitsInputs.get(length));
+            answer = game.getAnswer(notDigitsInputs.get(length)).getText();
             assertEquals(BullsAndCowsAnswers.notDigitsLine, answer);
             for (String repeatedDigitsInput : repeatedDigitsInputs) {
-                answer = game.getAnswer(repeatedDigitsInput);
+                answer = game.getAnswer(repeatedDigitsInput).getText();
                 if (repeatedDigitsInput.length() == length)
                     assertEquals(BullsAndCowsAnswers.repeatedDigitsLine, answer);
                 else
@@ -50,15 +50,15 @@ class BullsAndCowsGameTest {
     void getAnswer() {
         for (int length = 2; length <= 4; length++) {
             BullsAndCowsGame game = new BullsAndCowsGame();
-            String answer = game.getAnswer("/game");
+            String answer = game.getAnswer("/newgame").getText();
             assertEquals(BullsAndCowsAnswers.numberLengthRequestLine, answer);
-            answer = game.getAnswer(Integer.toString(length));
+            answer = game.getAnswer(Integer.toString(length)).getText();
             assertEquals(BullsAndCowsAnswers.NumberGenerationLine, answer);
             String generatedNumber = game.getGeneratedNumber().getGeneratedNumber();
             int numberOfGuesses = 10;
             for (int i = 0; i < numberOfGuesses; i++) {
                 NumberForGame randomNumber = new NumberForGame(length);
-                answer = game.getAnswer(randomNumber.getGeneratedNumber());
+                answer = game.getAnswer(randomNumber.getGeneratedNumber()).getText();
                 if (randomNumber.isEqual(generatedNumber)) {
                     assertEquals(BullsAndCowsAnswers.getWonLine(i + 1), answer);
                     break;
@@ -66,9 +66,9 @@ class BullsAndCowsGameTest {
                 Tuple<Integer> comparisonResult = randomNumber.compare(generatedNumber);
                 assertEquals(BullsAndCowsAnswers.getBullsAndCowsLine(comparisonResult, i + 2), answer);
             }
-            answer = game.getAnswer(generatedNumber);
+            answer = game.getAnswer(generatedNumber).getText();
             assertEquals(BullsAndCowsAnswers.getWonLine(numberOfGuesses + 1), answer);
-            answer = game.getAnswer("I want to play again");
+            answer = game.getAnswer("I want to play again").getText();
             assertEquals(BullsAndCowsAnswers.numberLengthRequestLine, answer);
         }
     }

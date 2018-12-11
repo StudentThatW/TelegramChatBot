@@ -1,20 +1,45 @@
 package chatbot;
 
 class MainDialog {
-    private BullsAndCowsGame game;
+    private BullsAndCowsGame bullsAndCowsGame;
+    private HanoiTowerGame hanoiTowerGame;
 
-    String getAnswer(String input) {
+    Answer getAnswer(String input) {
+        Answer answer = new Answer();
+
         if (input.equals("/start")) {
-            game = null;
-            return MainDialogAnswers.introductionLine;
+            bullsAndCowsGame = null;
+            hanoiTowerGame = null;
+            answer.addStartCommandsRow();
+            answer.addText(MainDialogAnswers.introductionLine);
+            return answer;
         }
-        else if (input.equals("/game")) {
-            game = new BullsAndCowsGame();
-            return game.getAnswer(input);
+        if (bullsAndCowsGame == null && hanoiTowerGame == null) {
+            if (input.equals("/bulls")) {
+                bullsAndCowsGame = new BullsAndCowsGame();
+                answer = bullsAndCowsGame.getAnswer(input);
+            }
+            else if (input.equals("/tower")) {
+                hanoiTowerGame = new HanoiTowerGame();
+                answer = hanoiTowerGame.getAnswer(input);
+            }
+            else {
+                answer.addStartCommandsRow();
+                answer.addText(MainDialogAnswers.unknownCommandLine);
+                return answer;
+            }
         }
-        else if (game == null)
-            return MainDialogAnswers.unknownCommandLine;
-        else
-            return game.getAnswer(input);
+        else {
+            if (hanoiTowerGame != null) {
+                hanoiTowerGame = input.equals("/newgame") ? new HanoiTowerGame() : hanoiTowerGame;
+                answer = hanoiTowerGame.getAnswer(input);
+            }
+            else {
+                bullsAndCowsGame = input.equals("/newgame") ? new BullsAndCowsGame() : bullsAndCowsGame;
+                answer = bullsAndCowsGame.getAnswer(input);
+            }
+        }
+        answer.addGameCommandsRow();
+        return answer;
     }
 }

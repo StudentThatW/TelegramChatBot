@@ -24,31 +24,39 @@ class BullsAndCowsGame {
         generatedNumber = null;
     }
 
-    String getAnswer(String input) {
+    Answer getAnswer(String input) {
+        Answer answer = new Answer();
         if (stage == GameStage.numberLengthRequest) {
             stage = GameStage.numberGeneration;
-            return BullsAndCowsAnswers.numberLengthRequestLine;
+            answer.addNumbersRow(2, 9);
+            answer.addText(BullsAndCowsAnswers.numberLengthRequestLine);
+            return answer;
         }
         if (stage == GameStage.numberGeneration) {
-            if (!isCorrectLength(input))
-                return BullsAndCowsAnswers.inncorrectLengthLine;
+            if (!isCorrectLength(input)) {
+                answer.addText(BullsAndCowsAnswers.incorrectLengthLine);
+                return answer;
+            }
             int length = Integer.parseInt(input);
             generatedNumber = new NumberForGame(length);
             stage = GameStage.guessingNumber;
-            return BullsAndCowsAnswers.NumberGenerationLine;
+            answer.addText(BullsAndCowsAnswers.NumberGenerationLine);
+            return answer;
         }
         if (generatedNumber.isEqual(input)){
-            String answer = BullsAndCowsAnswers.getWonLine(attempts);
+            answer.addText(BullsAndCowsAnswers.getWonLine(attempts));
             toInitialState();
             return answer;
         }
         String checkResult = checkNumber(input);
         if (!checkResult.equals("")) {
-            return checkResult;
+            answer.addText(checkResult);
+            return answer;
         }
         Tuple<Integer> comparisonResult = generatedNumber.compare(input);
         attempts++;
-        return BullsAndCowsAnswers.getBullsAndCowsLine(comparisonResult, attempts);
+        answer.addText(BullsAndCowsAnswers.getBullsAndCowsLine(comparisonResult, attempts));
+        return answer;
     }
 
     private boolean isCorrectLength(String line) {

@@ -15,9 +15,12 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Bot extends TelegramLongPollingBot {
-    private Map<String, MainDialog> dialogs = new HashMap<String, MainDialog>();
+//    private Map<String, MainDialog> dialogs = new HashMap<String, MainDialog>();
+    private ConcurrentMap<String, MainDialog> dialogs = new ConcurrentHashMap<String, MainDialog>();
 
     public static void main(String[] args) {
         ApiContextInitializer.init();
@@ -40,41 +43,40 @@ public class Bot extends TelegramLongPollingBot {
         if (message != null && message.hasText()) {
             String text = message.getText();
             String chatId = message.getChatId().toString();
-            if (!dialogs.containsKey(chatId))
-                dialogs.put(chatId, new MainDialog());
-            String answer = dialogs.get(chatId).getAnswer(text);
+//            if (!dialogs.containsKey(chatId))
+//                dialogs.put(chatId, new MainDialog());
+//            Answer answer = dialogs.get(chatId).getAnswer(text);
+            dialogs.putIfAbsent(chatId, new MainDialog());
+            Answer answer = dialogs.get(chatId).getAnswer(text);
             sendMsg(message, answer);
         }
     }
 
-    private ReplyKeyboardMarkup getReplyKeyboardMarkup(String text) {
+    private ReplyKeyboardMarkup getReplyKeyboardMarkup(Answer answer) {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboard(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(false);
+        List<List<String>> keyboardList = answer.getKeyboard();
         List<KeyboardRow> keyboard = new ArrayList<KeyboardRow>();
-        if (text.equals(BullsAndCowsAnswers.numberLengthRequestLine)) {
-            KeyboardRow numbersRow = new KeyboardRow();
-            for (int i = 2; i <= 9; i++)
-                numbersRow.add(Integer.toString(i));
-            keyboard.add(numbersRow);
+        for (List<String> row : keyboardList) {
+            KeyboardRow keyboardRow = new KeyboardRow();
+            for (String line : row)
+                keyboardRow.add(line);
+            keyboard.add(keyboardRow);
         }
-        KeyboardRow commandsRow = new KeyboardRow();
-        commandsRow.add("/start");
-        commandsRow.add("/game");
-        keyboard.add(commandsRow);
         replyKeyboardMarkup.setKeyboard(keyboard);
         return replyKeyboardMarkup;
     }
 
     @SuppressWarnings("deprecation")
-    private void sendMsg(Message message, String text) {
+    private void sendMsg(Message message, Answer answer) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(true);
-        sendMessage.setReplyMarkup(getReplyKeyboardMarkup(text));
+        sendMessage.setReplyMarkup(getReplyKeyboardMarkup(answer));
         sendMessage.setChatId(message.getChatId().toString());
         sendMessage.setReplyToMessageId(message.getMessageId());
-        sendMessage.setText(text);
+        sendMessage.setText(answer.getText() + answer.getEmojiLine());
         try {
             execute(sendMessage);
         } catch (TelegramApiException e){
